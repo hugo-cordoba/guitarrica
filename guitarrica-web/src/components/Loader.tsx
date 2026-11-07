@@ -1,14 +1,16 @@
 import { useLayoutEffect, useRef } from 'react'
-import { Plus } from 'lucide-react'
 
 /* Loader basado en gregorcollienne.com (medidas tomadas del primer frame de la grabación de referencia):
-   - Fondo liso, "+" arriba al centro y GUITARRICADELAFUENTE en el centro, DETRÁS de las fotos.
+   - Fondo liso y GUITARRICADELAFUENTE en el centro, DETRÁS de las fotos.
    - 5 columnas simétricas: ancho 13,6vw y hueco 9,5vw (horizontal y vertical); las extremas salen cortadas.
    - Fotos verticales 3:4 y horizontales 4:3 (estas más anchas que la columna, centradas en su hueco).
    - TODAS las columnas comparten la misma rejilla vertical (celda 3:4 + hueco) y se mueven a la MISMA velocidad.
      En el primer frame las columnas interiores dejan su HUECO justo a la altura del título (se lee limpio);
-     las exteriores centran una foto en esa línea y la central entra desde abajo, en la misma rejilla que las exteriores.
-   - La última foto de la columna central se centra, crece a pantalla completa y da paso al hero. */
+     las exteriores centran una foto en esa línea.
+   - La columna central también deja libre la celda de la línea del título, pero tiene fotos POR ENCIMA
+     (arriba del todo, donde antes estaba el "+") y por debajo.
+   - La última foto del tramo central se centra, crece a pantalla completa y da paso al hero.
+     Debajo de ella la columna sigue con más fotos (hasta el borde inferior), así no queda hueco al empezar la expansión. */
 export const HERO = 'https://guitarricadelafuente.com/tillmans-x-guitarrica-1800x.webp'
 const TILE = 'https://guitarricadelafuente.com/tillmans-x-guitarrica-400x.webp'
 
@@ -20,7 +22,7 @@ const IMAGES: string[] = []
 // Con estos patrones, junto al título quedan siempre fotos verticales (no invaden el hueco del nombre).
 const PATTERN = ['pppp', 'pplpl', 'plppl']
 const LAND = '139%' // ancho de las horizontales respecto a la columna (18,9vw / 13,6vw)
-const CENTER_TILES = 4 // fotos de la columna central (la última es el hero)
+const CENTER_TILES = 4 // fotos de la columna central hasta el hero incluido (la última es el hero)
 const HOLD = 900 // ms con el primer frame quieto, para que se lea el nombre
 const DUR = 5000 // ms del auto-scroll
 const EXPAND = 1200 // ms de la expansión final
@@ -86,15 +88,34 @@ export function Loader({ onDone }: { onDone: () => void }) {
       return slot
     }
 
-    // Columna central: entra desde abajo, una fila por debajo de la ancla (misma rejilla que las exteriores).
-    // La última foto es la imagen del hero.
-    center.style.marginTop = anchor + pitch + 'px'
+    // Columna central. La primera foto del tramo "hacia el hero" queda una fila por debajo de la ancla
+    // (misma rejilla que las demás columnas). Por encima:
+    //   - la celda de la ancla (línea del título) queda VACÍA para que el nombre se lea,
+    //   - y más arriba van fotos que asoman en el primer frame (donde antes estaba el "+").
+    let cpos = anchor + pitch
+    let up = 0 // celdas por encima de la primera foto que asoman (la última de ellas es la del título)
+    while (cpos - g > 0) { cpos -= pitch; up++ }
+    center.style.marginTop = cpos + 'px'
+    for (let i = 0; i < up - 1; i++) tile(center, i - up, 0) // fotos de arriba
+    if (up > 0) {
+      const gap = document.createElement('div') // hueco a la altura del título
+      gap.className = 'flex-none'
+      gap.style.aspectRatio = '3 / 4'
+      center.append(gap)
+    }
+
+    // Tramo hasta el hero: la última foto es la imagen del hero.
     const centerTiles = Array.from({ length: CENTER_TILES }, (_, i) =>
       tile(center, i, 0, i === CENTER_TILES - 1 ? HERO : undefined)
     )
     const key = centerTiles[CENTER_TILES - 1]
     const kr = key.getBoundingClientRect()
     const dist = kr.top + kr.height / 2 - vh / 2 // recorrido para dejar la foto final centrada
+
+    // Fotos POR DEBAJO del hero: cuando éste queda centrado, la columna debe seguir hasta el borde inferior
+    // (espacio libre bajo el hero = vh/2 - h/2). +1 de margen para que nunca asome el fondo al expandir.
+    const below = Math.ceil((vh / 2 - h / 2 + g) / pitch) + 1
+    for (let i = 0; i < below; i++) tile(center, CENTER_TILES + i, 0)
 
     // Resto de columnas: interiores (distancia impar) con el HUECO en la línea del título y exteriores
     // con una celda centrada en ella. Se rellenan hasta cubrir el recorrido (misma velocidad para todas).
@@ -163,8 +184,7 @@ export function Loader({ onDone }: { onDone: () => void }) {
 
   return (
     <div ref={ref} aria-hidden="true" className="fixed inset-0 z-[100] overflow-hidden bg-background">
-      <Plus data-fade strokeWidth={1.25} className="absolute left-1/2 top-4 z-[5] h-7 w-7 -translate-x-1/2 text-foreground transition-opacity duration-500" />
-      {/* Título detrás de las fotos (z-1 < columnas z-2), centrado en la línea donde las columnas interiores dejan su hueco */}
+      {/* Título detrás de las fotos (z-1 < columnas z-2), centrado en la línea donde las columnas dejan su hueco */}
       <h2 data-fade className="absolute inset-x-0 top-1/2 z-[1] -translate-y-1/2 whitespace-nowrap text-center font-display text-[7vw] font-bold leading-none tracking-[-0.03em] text-foreground transition-opacity duration-500 md:text-[4.6vw]">
         GUITARRICADELAFUENTE
       </h2>

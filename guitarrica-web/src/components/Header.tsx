@@ -4,7 +4,8 @@ import { cn } from '@/lib/utils'
 
 /* Header estilo web de artista:
    - Siempre fijo: nunca se oculta al hacer scroll.
-   - Nombre a la izquierda (serif ancha, mayúsculas) y entradas del menú alineadas a la derecha.
+   - Nombre a la izquierda (mayúsculas) y entradas del menú alineadas a la derecha.
+   - Misma tipografía que el resto de la web (Inter, font-sans).
    - Sobre el hero: transparente, texto claro y degradado sutil arriba para el contraste.
    - Al salir del hero: barra sólida con blur y borde fino; la sección visible queda subrayada.
    - < lg: botón de menú a la derecha → menú a pantalla completa (Esc cierra, bloquea el scroll). */
@@ -89,7 +90,7 @@ export function Header({ ready }: { ready: boolean }) {
     <>
       <header
         className={cn(
-          'fixed inset-x-0 top-0 z-50 border-b transition-[transform,opacity,background-color,border-color,color] duration-500',
+          'fixed inset-x-0 top-0 z-50 border-b font-sans transition-[transform,opacity,background-color,border-color,color] duration-500',
           expo,
           shown ? 'translate-y-0' : '-translate-y-full opacity-0',
           bar ? 'border-border bg-background/80 text-foreground backdrop-blur-md' : 'border-transparent',
@@ -110,7 +111,7 @@ export function Header({ ready }: { ready: boolean }) {
             href="#top"
             onClick={() => setOpen(false)}
             aria-label="Guitarricadelafuente, ir al inicio"
-            className="whitespace-nowrap font-wordmark text-[3.7vw] uppercase leading-none tracking-[0.01em] sm:text-[1.6rem] lg:text-2xl xl:text-3xl"
+            className="whitespace-nowrap text-[4.2vw] font-medium uppercase leading-none tracking-tight sm:text-xl lg:text-xl xl:text-2xl"
           >
             Guitarricadelafuente
           </a>
@@ -123,7 +124,7 @@ export function Header({ ready }: { ready: boolean }) {
                   <a
                     href={href}
                     aria-current={active === href.slice(1) ? 'location' : undefined}
-                    className="relative inline-flex items-center gap-1 py-2 font-wordmark text-xs uppercase tracking-widest after:absolute after:inset-x-0 after:bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-300 after:ease-out hover:after:scale-x-100 focus-visible:outline-none focus-visible:after:scale-x-100 aria-[current=location]:after:scale-x-100 xl:text-sm"
+                    className="relative inline-flex items-center gap-1 py-2 text-xs font-medium uppercase tracking-widest after:absolute after:inset-x-0 after:bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-300 after:ease-out hover:after:scale-x-100 focus-visible:outline-none focus-visible:after:scale-x-100 aria-[current=location]:after:scale-x-100 xl:text-sm"
                   >
                     {label}
                     {href.startsWith('mailto:') && <ArrowUpRight className="h-3 w-3" strokeWidth={1.5} aria-hidden="true" />}
@@ -141,7 +142,7 @@ export function Header({ ready }: { ready: boolean }) {
             aria-expanded={open}
             aria-controls="menu-movil"
             aria-label={open ? 'Cerrar menú' : 'Abrir menú'}
-            className="-mr-2 inline-flex h-10 items-center gap-2 px-2 font-wordmark text-xs uppercase tracking-widest lg:hidden"
+            className="-mr-2 inline-flex h-10 items-center gap-2 px-2 text-xs font-medium uppercase tracking-widest lg:hidden"
           >
             <span className="hidden sm:inline">{open ? 'close' : 'menu'}</span>
             {open ? <X className="h-6 w-6" strokeWidth={1.5} aria-hidden="true" /> : <Menu className="h-6 w-6" strokeWidth={1.5} aria-hidden="true" />}
@@ -154,7 +155,7 @@ export function Header({ ready }: { ready: boolean }) {
         id="menu-movil"
         aria-hidden={!open}
         className={cn(
-          'fixed inset-0 z-40 flex flex-col justify-center bg-background pt-16 text-foreground transition-[opacity,visibility] duration-300 lg:hidden',
+          'fixed inset-0 z-40 flex flex-col justify-center bg-background pt-16 font-sans text-foreground transition-[opacity,visibility] duration-300 lg:hidden',
           pad,
           open ? 'visible opacity-100' : 'invisible opacity-0'
         )}
@@ -166,7 +167,7 @@ export function Header({ ready }: { ready: boolean }) {
                 href={href}
                 onClick={() => setOpen(false)}
                 className={cn(
-                  'flex items-baseline justify-between py-4 font-wordmark text-5xl uppercase tracking-tight transition-transform duration-700',
+                  'flex items-baseline justify-between py-4 text-5xl font-medium uppercase tracking-tight transition-transform duration-700',
                   expo,
                   open ? 'translate-y-0' : 'translate-y-full'
                 )}
@@ -176,7 +177,7 @@ export function Header({ ready }: { ready: boolean }) {
                   {label}
                   {href.startsWith('mailto:') && <ArrowUpRight className="h-6 w-6" strokeWidth={1.5} aria-hidden="true" />}
                 </span>
-                <span className="font-sans text-xs font-medium tabular-nums tracking-widest text-muted-foreground">0{i + 1}</span>
+                <span className="text-xs font-medium tabular-nums tracking-widest text-muted-foreground">0{i + 1}</span>
               </a>
             </li>
           ))}
