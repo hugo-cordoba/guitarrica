@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Claro (por defecto): stone-50 / stone-950 / stone-200 / stone-500 + amber-500 de acento */
+  :root {
+    --background: 60 9.1% 97.8%;  --foreground: 20 14.3% 4.1%;
+    --card: 0 0% 100%;            --card-foreground: 20 14.3% 4.1%;
+    --popover: 0 0% 100%;         --popover-foreground: 20 14.3% 4.1%;
+    --primary: 37.7 92.1% 50.2%;  --primary-foreground: 20 14.3% 4.1%;
+    --secondary: 60 4.8% 95.9%;   --secondary-foreground: 24 9.8% 10%;
+    --muted: 60 4.8% 95.9%;       --muted-foreground: 25 5.3% 44.7%;
+    --accent: 60 4.8% 95.9%;      --accent-foreground: 24 9.8% 10%;
+    --destructive: 0 84.2% 60.2%; --destructive-foreground: 60 9.1% 97.8%;
+    --border: 20 5.9% 90%;        --input: 20 5.9% 90%;  --ring: 37.7 92.1% 50.2%;
+    --radius: 0.5rem;
+  }
+  /* Oscuro: stone-950 / stone-100 / stone-800 / stone-400 */
+  .dark {
+    --background: 20 14.3% 4.1%;  --foreground: 60 4.8% 95.9%;
+    --card: 24 9.8% 10%;          --card-foreground: 60 4.8% 95.9%;
+    --popover: 20 14.3% 4.1%;     --popover-foreground: 60 4.8% 95.9%;
+    --secondary: 30 6.3% 15.1%;   --secondary-foreground: 60 4.8% 95.9%;
+    --muted: 24 9.8% 10%;         --muted-foreground: 24 5.4% 63.9%;
+    --accent: 30 6.3% 15.1%;      --accent-foreground: 60 4.8% 95.9%;
+    --destructive: 0 62.8% 30.6%; --destructive-foreground: 60 4.8% 95.9%;
+    --border: 30 6.3% 15.1%;      --input: 30 6.3% 15.1%;
+  }
+  html { scroll-behavior: smooth; color-scheme: light; }
+  html.dark { color-scheme: dark; }
+  body { @apply bg-background font-sans text-foreground antialiased transition-colors duration-300; }
+}
