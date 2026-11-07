@@ -1,9 +1,9 @@
 import { HERO } from '@/components/Loader'
 import { CommunityForm } from '@/components/CommunityForm'
+import { Header } from '@/components/Header'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { cn } from '@/lib/utils'
 
-const LINKS = [['shop', '#shop'], ['tour', '#tour'], ['video', '#videos'], ['bio', '#bio'], ['community', '#community'], ['booking', 'mailto:info@guitarricadelafuente.com']]
 const pad = 'px-[clamp(1rem,3vw,2.5rem)]'
 const expo = 'ease-[cubic-bezier(.76,0,.24,1)]'
 
@@ -21,14 +21,7 @@ const Section = ({ id, title, children }: { id: string; title: string; children:
 export function Site({ ready }: { ready: boolean }) {
   return (
     <>
-      <header className={cn('fixed inset-x-0 top-0 z-50 flex items-center justify-between gap-4 py-5 text-sm text-stone-50 mix-blend-difference transition-opacity delay-500 duration-700', pad, ready ? 'opacity-100' : 'opacity-0')}>
-        <a href="#top" className="hidden sm:block">Guitarricadelafuente</a>
-        <nav aria-label="Principal">
-          <ul className="flex flex-wrap justify-center gap-x-6 gap-y-1 sm:justify-end">
-            {LINKS.map(([l, h]) => <li key={l}><a href={h} className="transition-opacity hover:opacity-60">{l}</a></li>)}
-          </ul>
-        </nav>
-      </header>
+      <Header ready={ready} />
 
       <main>
         <section id="top" className={cn('relative flex h-svh min-h-[32rem] items-end overflow-hidden pb-[clamp(1rem,3vw,2.5rem)]', pad)}>
