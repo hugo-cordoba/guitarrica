@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import { ArrowUpRight, Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-/* Header estilo web de artista (sin logo, solo menú):
-   - Sobre el hero: transparente, texto claro y un degradado sutil arriba para asegurar el contraste.
-   - Al salir del hero: barra sólida con blur y borde fino; se oculta al bajar y reaparece al subir.
-   - Escritorio: entradas centradas en mayúsculas con tracking ancho, subrayado animado y atenuación
-     de las demás al pasar el ratón; la sección visible queda subrayada.
-   - Móvil: botón "menu" → menú a pantalla completa con titulares grandes (Esc cierra, bloquea el scroll). */
+/* Header estilo web de artista:
+   - Siempre fijo: nunca se oculta al hacer scroll.
+   - Nombre a la izquierda (serif ancha, mayúsculas) y entradas del menú alineadas a la derecha.
+   - Sobre el hero: transparente, texto claro y degradado sutil arriba para el contraste.
+   - Al salir del hero: barra sólida con blur y borde fino; la sección visible queda subrayada.
+   - < lg: botón de menú a la derecha → menú a pantalla completa (Esc cierra, bloquea el scroll). */
 const LINKS = [
   { label: 'shop', href: '#shop' },
   { label: 'tour', href: '#tour' },
@@ -24,7 +24,6 @@ const expo = 'ease-[cubic-bezier(.76,0,.24,1)]'
 export function Header({ ready }: { ready: boolean }) {
   const [shown, setShown] = useState(false) // entrada inicial, 500 ms después de que acabe el loader
   const [solid, setSolid] = useState(false) // fuera del hero → barra sólida
-  const [hidden, setHidden] = useState(false) // bajando → se oculta
   const [open, setOpen] = useState(false) // menú móvil
   const [active, setActive] = useState('')
   const btn = useRef<HTMLButtonElement>(null)
@@ -35,17 +34,13 @@ export function Header({ ready }: { ready: boolean }) {
     return () => clearTimeout(t)
   }, [ready])
 
-  // Estado según el scroll: sólido tras el hero; se oculta al bajar y reaparece al subir
+  // Barra sólida una vez superado el hero
   useEffect(() => {
-    let last = window.scrollY
     let raf = 0
     const update = () => {
       raf = 0
-      const y = window.scrollY
       const hero = (document.getElementById('top')?.offsetHeight ?? window.innerHeight) - BAR
-      setSolid(y > hero)
-      if (y <= hero) { setHidden(false); last = y }
-      else if (Math.abs(y - last) > 4) { setHidden(y > last); last = y }
+      setSolid(window.scrollY > hero)
     }
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(update) }
     update()
@@ -74,7 +69,7 @@ export function Header({ ready }: { ready: boolean }) {
     if (!open) return
     const prev = document.documentElement.style.overflow
     document.documentElement.style.overflow = 'hidden'
-    const mq = matchMedia('(min-width: 768px)')
+    const mq = matchMedia('(min-width: 1024px)')
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') { setOpen(false); btn.current?.focus() }
     }
@@ -96,7 +91,7 @@ export function Header({ ready }: { ready: boolean }) {
         className={cn(
           'fixed inset-x-0 top-0 z-50 border-b transition-[transform,opacity,background-color,border-color,color] duration-500',
           expo,
-          !shown ? '-translate-y-full opacity-0' : hidden && !open ? '-translate-y-full' : 'translate-y-0',
+          shown ? 'translate-y-0' : '-translate-y-full opacity-0',
           bar ? 'border-border bg-background/80 text-foreground backdrop-blur-md' : 'border-transparent',
           !bar && (open ? 'text-foreground' : 'text-stone-50')
         )}
@@ -105,19 +100,30 @@ export function Header({ ready }: { ready: boolean }) {
         <div
           aria-hidden="true"
           className={cn(
-            'pointer-events-none absolute inset-x-0 top-0 -z-10 h-28 bg-gradient-to-b from-stone-950/40 to-transparent transition-opacity duration-500',
+            'pointer-events-none absolute inset-x-0 top-0 -z-10 h-28 bg-gradient-to-b from-stone-950/60 to-transparent transition-opacity duration-500',
             bar || open ? 'opacity-0' : 'opacity-100'
           )}
         />
-        <div className={cn('mx-auto flex h-16 max-w-screen-2xl items-center justify-end md:justify-center', pad)}>
-          <nav aria-label="Principal" className="hidden md:block">
-            <ul className="group/nav flex items-center gap-x-10 lg:gap-x-14">
+        <div className={cn('mx-auto flex h-16 max-w-screen-2xl items-center justify-between gap-6', pad)}>
+          {/* Nombre a la izquierda */}
+          <a
+            href="#top"
+            onClick={() => setOpen(false)}
+            aria-label="Guitarricadelafuente, ir al inicio"
+            className="whitespace-nowrap font-wordmark text-[3.7vw] uppercase leading-none tracking-[0.01em] sm:text-[1.6rem] lg:text-2xl xl:text-3xl"
+          >
+            Guitarricadelafuente
+          </a>
+
+          {/* Entradas a la derecha (escritorio) */}
+          <nav aria-label="Principal" className="hidden lg:block">
+            <ul className="group/nav flex items-center gap-x-6 xl:gap-x-9">
               {LINKS.map(({ label, href }) => (
                 <li key={label} className="transition-opacity duration-300 group-hover/nav:opacity-40 hover:!opacity-100">
                   <a
                     href={href}
                     aria-current={active === href.slice(1) ? 'location' : undefined}
-                    className="relative inline-flex items-center gap-1 py-2 text-xs font-medium uppercase tracking-widest after:absolute after:inset-x-0 after:bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-300 after:ease-out hover:after:scale-x-100 focus-visible:outline-none focus-visible:after:scale-x-100 aria-[current=location]:after:scale-x-100"
+                    className="relative inline-flex items-center gap-1 py-2 font-wordmark text-xs uppercase tracking-widest after:absolute after:inset-x-0 after:bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-300 after:ease-out hover:after:scale-x-100 focus-visible:outline-none focus-visible:after:scale-x-100 aria-[current=location]:after:scale-x-100 xl:text-sm"
                   >
                     {label}
                     {href.startsWith('mailto:') && <ArrowUpRight className="h-3 w-3" strokeWidth={1.5} aria-hidden="true" />}
@@ -127,16 +133,18 @@ export function Header({ ready }: { ready: boolean }) {
             </ul>
           </nav>
 
+          {/* Botón de menú a la derecha (móvil / tablet) */}
           <button
             ref={btn}
             type="button"
             onClick={() => setOpen((o) => !o)}
             aria-expanded={open}
             aria-controls="menu-movil"
-            className="-mr-2 inline-flex h-10 items-center gap-2 px-2 text-xs font-medium uppercase tracking-widest md:hidden"
+            aria-label={open ? 'Cerrar menú' : 'Abrir menú'}
+            className="-mr-2 inline-flex h-10 items-center gap-2 px-2 font-wordmark text-xs uppercase tracking-widest lg:hidden"
           >
-            <span>{open ? 'close' : 'menu'}</span>
-            {open ? <X className="h-5 w-5" strokeWidth={1.5} aria-hidden="true" /> : <Menu className="h-5 w-5" strokeWidth={1.5} aria-hidden="true" />}
+            <span className="hidden sm:inline">{open ? 'close' : 'menu'}</span>
+            {open ? <X className="h-6 w-6" strokeWidth={1.5} aria-hidden="true" /> : <Menu className="h-6 w-6" strokeWidth={1.5} aria-hidden="true" />}
           </button>
         </div>
       </header>
@@ -146,7 +154,7 @@ export function Header({ ready }: { ready: boolean }) {
         id="menu-movil"
         aria-hidden={!open}
         className={cn(
-          'fixed inset-0 z-40 flex flex-col justify-center bg-background pt-16 text-foreground transition-[opacity,visibility] duration-300 md:hidden',
+          'fixed inset-0 z-40 flex flex-col justify-center bg-background pt-16 text-foreground transition-[opacity,visibility] duration-300 lg:hidden',
           pad,
           open ? 'visible opacity-100' : 'invisible opacity-0'
         )}
@@ -158,7 +166,7 @@ export function Header({ ready }: { ready: boolean }) {
                 href={href}
                 onClick={() => setOpen(false)}
                 className={cn(
-                  'flex items-baseline justify-between py-4 font-display text-5xl font-semibold tracking-tight transition-transform duration-700',
+                  'flex items-baseline justify-between py-4 font-wordmark text-5xl uppercase tracking-tight transition-transform duration-700',
                   expo,
                   open ? 'translate-y-0' : 'translate-y-full'
                 )}
@@ -168,7 +176,7 @@ export function Header({ ready }: { ready: boolean }) {
                   {label}
                   {href.startsWith('mailto:') && <ArrowUpRight className="h-6 w-6" strokeWidth={1.5} aria-hidden="true" />}
                 </span>
-                <span className="text-xs font-medium tabular-nums tracking-widest text-muted-foreground">0{i + 1}</span>
+                <span className="font-sans text-xs font-medium tabular-nums tracking-widest text-muted-foreground">0{i + 1}</span>
               </a>
             </li>
           ))}

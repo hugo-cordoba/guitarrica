@@ -5,7 +5,11 @@ export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
-      fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], display: ['"Inter Tight"', 'Inter', 'system-ui', 'sans-serif'] },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['"Inter Tight"', 'Inter', 'system-ui', 'sans-serif'],
+        wordmark: ['Chonburi', '"Times New Roman"', 'serif'],
+      },
       colors: {
         border: c('border'), input: c('input'), ring: c('ring'),
         background: c('background'), foreground: c('foreground'),
