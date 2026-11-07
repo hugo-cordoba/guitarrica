@@ -12,7 +12,7 @@ const Slot = ({ className, children }: { className?: string; children: React.Rea
 )
 
 const Section = ({ id, title, children }: { id: string; title: string; children: React.ReactNode }) => (
-  <section id={id} className={cn('border-t border-border py-[clamp(4rem,10vw,8rem)]', pad)}>
+  <section id={id} className={cn('border-t border-border py-[clamp(5rem,10vw,8rem)]', pad)}>
     <h2 className="mb-8 text-4xl font-medium leading-none tracking-tight md:text-6xl">{title}</h2>
     {children}
   </section>
