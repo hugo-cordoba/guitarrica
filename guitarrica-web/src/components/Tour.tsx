@@ -49,13 +49,14 @@ const iso = (d: string) => {
   return `20${yy}-${mm}-${dd}`
 }
 
-// Reparte las fechas en n bloques equilibrados (con 28 fechas y 3 bloques: 10 · 9 · 9)
+// Reparte las fechas en n bloques equilibrados; el sobrante va a los ÚLTIMOS bloques
+// (con 28 fechas y 3 bloques: 9 · 9 · 10)
 const split = (items: Show[], n: number) => {
   const base = Math.floor(items.length / n)
   const extra = items.length % n
   let from = 0
   return Array.from({ length: n }, (_, k) => {
-    const to = from + base + (k < extra ? 1 : 0)
+    const to = from + base + (k >= n - extra ? 1 : 0)
     const part = items.slice(from, to)
     from = to
     return part

@@ -46,7 +46,6 @@ export function Site({ ready }: { ready: boolean }) {
           </div>
         </Section>
         <Videos />
-        <Videos />
         <Section id="bio" title="bio"><Slot>Texto de biografía</Slot></Section>
         <Section id="community" title="community"><CommunityForm /></Section>
       </main>
