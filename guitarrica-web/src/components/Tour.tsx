@@ -77,8 +77,6 @@ function Row({ show: [date, city, venue] }: { show: Show }) {
 export function Tour() {
   return (
     <section id="tour" className={cn('border-t border-border py-[clamp(5rem,10vw,8rem)]', pad)}>
-      <h2 className="mb-8 text-center text-4xl font-medium leading-none tracking-tight md:text-6xl">tour</h2>
-
       <div className="text-sm leading-5 xl:text-[13px] 2xl:text-sm">
         {/* < xl: una sola lista */}
         <ul className={cn(LIST, 'mx-auto w-full sm:w-fit xl:hidden')}>

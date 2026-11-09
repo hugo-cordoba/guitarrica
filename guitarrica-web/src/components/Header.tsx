@@ -10,14 +10,14 @@ import { cn } from '@/lib/utils'
    - Al salir del hero: barra sólida con blur y borde fino; la sección visible queda subrayada.
    - < lg: botón de menú a la derecha → menú a pantalla completa (Esc cierra, bloquea el scroll). */
 const LINKS = [
-  { label: 'shop', href: '#shop' },
   { label: 'TOUR', href: '#tour' },
+  { label: 'shop', href: '#shop' },
   { label: 'CANCIONES', href: '#videos' },
   { label: 'bio', href: '#bio' },
   { label: 'community', href: '#community' },
   { label: 'booking', href: 'mailto:info@guitarricadelafuente.com' },
 ]
-const SECTIONS = ['top', 'shop', 'tour', 'videos', 'bio', 'community']
+const SECTIONS = ['top', 'tour', 'shop', 'videos', 'bio', 'community']
 const BAR = 64 // h-16
 const pad = 'px-[clamp(1rem,3vw,2.5rem)]'
 const expo = 'ease-[cubic-bezier(.76,0,.24,1)]'

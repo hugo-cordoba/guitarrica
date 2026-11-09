@@ -38,13 +38,14 @@ export function Site({ ready }: { ready: boolean }) {
           </h1>
         </section>
 
+        <Tour />
         <Section id="shop" title="shop">
           {/* TODO: integrar la tienda */}
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((n) => <Slot key={n} className="aspect-[4/5]">producto</Slot>)}
           </div>
         </Section>
-        <Tour />
+        <Videos />
         <Videos />
         <Section id="bio" title="bio"><Slot>Texto de biografía</Slot></Section>
         <Section id="community" title="community"><CommunityForm /></Section>
