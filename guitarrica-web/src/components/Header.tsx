@@ -11,8 +11,8 @@ import { cn } from '@/lib/utils'
    - < lg: botón de menú a la derecha → menú a pantalla completa (Esc cierra, bloquea el scroll). */
 const LINKS = [
   { label: 'shop', href: '#shop' },
-  { label: 'tour', href: '#tour' },
-  { label: 'video', href: '#videos' },
+  { label: 'TOUR', href: '#tour' },
+  { label: 'CANCIONES', href: '#videos' },
   { label: 'bio', href: '#bio' },
   { label: 'community', href: '#community' },
   { label: 'booking', href: 'mailto:info@guitarricadelafuente.com' },

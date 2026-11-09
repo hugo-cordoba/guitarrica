@@ -2,6 +2,8 @@ import { HERO } from '@/components/Loader'
 import { CommunityForm } from '@/components/CommunityForm'
 import { Header } from '@/components/Header'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { Tour } from '@/components/Tour'
+import { Videos } from '@/components/Videos'
 import { cn } from '@/lib/utils'
 
 const pad = 'px-[clamp(1rem,3vw,2.5rem)]'
@@ -42,8 +44,8 @@ export function Site({ ready }: { ready: boolean }) {
             {[1, 2, 3].map((n) => <Slot key={n} className="aspect-[4/5]">producto</Slot>)}
           </div>
         </Section>
-        <Section id="tour" title="tour"><Slot>Widget de fechas (Bandsintown, Songkick…)</Slot></Section>
-        <Section id="videos" title="video"><Slot className="aspect-video">Embed de YouTube</Slot></Section>
+        <Tour />
+        <Videos />
         <Section id="bio" title="bio"><Slot>Texto de biografía</Slot></Section>
         <Section id="community" title="community"><CommunityForm /></Section>
       </main>
