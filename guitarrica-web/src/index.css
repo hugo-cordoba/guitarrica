@@ -5,6 +5,7 @@
 @layer base {
   /* Claro (por defecto): stone-50 / stone-950 / stone-200 / stone-500 + amber-500 de acento */
   :root {
+    --header-h: 4rem;             /* alto del header fijo (borde incluido): lo usan Header.tsx y scroll-padding-top */
     --background: 60 9.1% 97.8%;  --foreground: 20 14.3% 4.1%;
     --card: 0 0% 100%;            --card-foreground: 20 14.3% 4.1%;
     --popover: 0 0% 100%;         --popover-foreground: 20 14.3% 4.1%;
@@ -27,8 +28,10 @@
     --destructive: 0 62.8% 30.6%; --destructive-foreground: 60 4.8% 95.9%;
     --border: 30 6.3% 15.1%;      --input: 30 6.3% 15.1%;
   }
-  /* scroll-padding-top: el header es fijo (4rem), así los anclas no quedan tapados */
-  html { scroll-behavior: smooth; color-scheme: light; }
+  /* scroll-padding-top: el header es fijo, así que al saltar a un ancla la sección queda justo debajo de él.
+     Se resta 1px (el borde del header) para que el borde superior de la sección coincida con el del header
+     en vez de formar una línea doble. */
+  html { scroll-behavior: smooth; scroll-padding-top: calc(var(--header-h) - 1px); color-scheme: light; }
   html.dark { color-scheme: dark; }
   body { @apply bg-background font-sans text-foreground antialiased transition-colors duration-300; }
 }

@@ -1,13 +1,21 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { ArrowUpRight, Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-/* Header estilo web de artista:
-   - Siempre fijo: nunca se oculta al hacer scroll.
-   - Nombre a la izquierda (mayúsculas) y entradas del menú alineadas a la derecha.
-   - Misma tipografía que el resto de la web (Inter, font-sans).
-   - Sobre el hero: transparente, texto claro y degradado sutil arriba para el contraste.
-   - Al salir del hero: barra sólida con blur y borde fino; la sección visible queda subrayada.
+/* Header estilo web de artista. Siempre fijo. Su aspecto va LIGADO AL SCROLL (sin saltos ni umbrales):
+   1. Sobre el hero: transparente, texto claro y degradado sutil arriba para el contraste.
+   2. Durante los últimos FADE px antes de llegar a la altura a la que aterriza #tour (al pulsar TOUR en el menú),
+      se va volviendo blanco poco a poco (fondo, borde y color del texto); al llegar a esa altura ya es 100 % blanco.
+      No hace falta pulsar nada: basta con hacer scroll.
+   3. Mientras el hero termina de salir de debajo de la barra se mantiene blanco; después, y a lo largo de GLASS px,
+      pasa a glass (bg-background/80 + backdrop-blur) y se queda así.
+   - Mecánica: update() calcula --p (blanco), --t (color del texto) y --q (glass) y los escribe en el <header>
+     sin re-renderizar; el estilo los lee con calc()/var(). Una transición corta (200 ms) suaviza el seguimiento.
+   - Su alto es var(--header-h) (definida en index.css, borde inferior incluido). Esa misma variable alimenta
+     scroll-padding-top, así que al ir a una sección desde el menú su borde superior queda justo bajo la barra
+     y la línea del header y la de la sección coinciden (nada de la sección queda tapado).
+   - Nombre a la izquierda (mayúsculas) y entradas del menú alineadas a la derecha. Inter (font-sans).
+   - La sección visible queda subrayada.
    - < lg: botón de menú a la derecha → menú a pantalla completa (Esc cierra, bloquea el scroll). */
 const LINKS = [
   { label: 'TOUR', href: '#tour' },
@@ -18,15 +26,48 @@ const LINKS = [
   { label: 'booking', href: 'mailto:info@guitarricadelafuente.com' },
 ]
 const SECTIONS = ['top', 'tour', 'shop', 'videos', 'bio', 'community']
-const BAR = 64 // h-16
 const pad = 'px-[clamp(1rem,3vw,2.5rem)]'
 const expo = 'ease-[cubic-bezier(.76,0,.24,1)]'
+const EASE = 'cubic-bezier(.76,0,.24,1)'
+
+const FADE = 220 // px de scroll durante los que la barra pasa de transparente a blanco (más = más sutil)
+const GLASS = 96 // px de scroll, tras salir el hero, durante los que pasa de blanco a glass
+
+const clamp = (n: number) => Math.min(1, Math.max(0, n))
+const smooth = (n: number) => n * n * (3 - 2 * n)
+
+// Entrada (transform/opacity) lenta y seguimiento del scroll (colores) corto
+const TRANSITION = [
+  `transform 500ms ${EASE}`,
+  `opacity 500ms ${EASE}`,
+  'background-color 200ms ease-out',
+  'border-color 200ms ease-out',
+  'color 200ms ease-out',
+  'backdrop-filter 200ms ease-out',
+].join(', ')
+
+const SCROLL_STYLE: CSSProperties = {
+  backgroundColor: 'hsl(var(--background) / calc(var(--p, 0) * (1 - 0.2 * var(--q, 0))))',
+  borderColor: 'hsl(var(--border) / var(--p, 0))',
+  color: 'color-mix(in srgb, hsl(var(--foreground)) calc(var(--t, 0) * 100%), #fafaf9)',
+  backdropFilter: 'blur(calc(var(--q, 0) * 12px))',
+  WebkitBackdropFilter: 'blur(calc(var(--q, 0) * 12px))',
+}
+
+// Con el menú móvil abierto la barra se funde con el menú (fondo sólido, sin borde)
+const OPEN_STYLE: CSSProperties = {
+  backgroundColor: 'hsl(var(--background))',
+  borderColor: 'transparent',
+  color: 'hsl(var(--foreground))',
+  backdropFilter: 'none',
+  WebkitBackdropFilter: 'none',
+}
 
 export function Header({ ready }: { ready: boolean }) {
   const [shown, setShown] = useState(false) // entrada inicial, 500 ms después de que acabe el loader
-  const [solid, setSolid] = useState(false) // fuera del hero → barra sólida
   const [open, setOpen] = useState(false) // menú móvil
   const [active, setActive] = useState('')
+  const bar = useRef<HTMLElement>(null)
   const btn = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
@@ -35,13 +76,20 @@ export function Header({ ready }: { ready: boolean }) {
     return () => clearTimeout(t)
   }, [ready])
 
-  // Barra sólida una vez superado el hero
+  // Aspecto de la barra según dónde acaba el hero respecto a ella
   useEffect(() => {
     let raf = 0
     const update = () => {
       raf = 0
-      const hero = (document.getElementById('top')?.offsetHeight ?? window.innerHeight) - BAR
-      setSolid(window.scrollY > hero)
+      const el = bar.current
+      const hero = document.getElementById('top')
+      if (!el || !hero) return
+      const end = hero.getBoundingClientRect().bottom // borde inferior del hero respecto a la ventana
+      const land = el.offsetHeight - 1 // dónde queda ese borde al ir a #tour (scroll-padding-top)
+      const raw = clamp((land + FADE - end) / FADE) // 0 lejos → 1 al llegar a la altura de #tour
+      el.style.setProperty('--p', smooth(raw).toFixed(3)) // blanco: fondo y borde
+      el.style.setProperty('--t', smooth(clamp((raw - 0.35) / 0.3)).toFixed(3)) // color del texto (tramo central)
+      el.style.setProperty('--q', smooth(clamp(-end / GLASS)).toFixed(3)) // glass, solo cuando el hero ya salió
     }
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(update) }
     update()
@@ -84,28 +132,23 @@ export function Header({ ready }: { ready: boolean }) {
     }
   }, [open])
 
-  const bar = solid && !open
-
   return (
     <>
       <header
+        ref={bar}
+        style={{ ...(open ? OPEN_STYLE : SCROLL_STYLE), transition: TRANSITION }}
         className={cn(
-          'fixed inset-x-0 top-0 z-50 border-b font-sans transition-[transform,opacity,background-color,border-color,color] duration-500',
-          expo,
-          shown ? 'translate-y-0' : '-translate-y-full opacity-0',
-          bar ? 'border-border bg-background/80 text-foreground backdrop-blur-md' : 'border-transparent',
-          !bar && (open ? 'text-foreground' : 'text-stone-50')
+          'fixed inset-x-0 top-0 z-50 h-[var(--header-h)] border-b font-sans',
+          shown ? 'translate-y-0' : '-translate-y-full opacity-0'
         )}
       >
-        {/* Degradado superior para que el texto claro se lea sobre cualquier foto */}
+        {/* Degradado superior para que el texto claro se lea sobre cualquier foto; se apaga al volverse blanca la barra */}
         <div
           aria-hidden="true"
-          className={cn(
-            'pointer-events-none absolute inset-x-0 top-0 -z-10 h-28 bg-gradient-to-b from-stone-950/60 to-transparent transition-opacity duration-500',
-            bar || open ? 'opacity-0' : 'opacity-100'
-          )}
+          style={{ opacity: open ? 0 : 'calc(1 - var(--p, 0))' }}
+          className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-28 bg-gradient-to-b from-stone-950/60 to-transparent transition-opacity duration-200"
         />
-        <div className={cn('mx-auto flex h-16 max-w-screen-2xl items-center justify-between gap-6', pad)}>
+        <div className={cn('mx-auto flex h-full max-w-screen-2xl items-center justify-between gap-6', pad)}>
           {/* Nombre a la izquierda */}
           <a
             href="#top"
@@ -155,7 +198,7 @@ export function Header({ ready }: { ready: boolean }) {
         id="menu-movil"
         aria-hidden={!open}
         className={cn(
-          'fixed inset-0 z-40 flex flex-col justify-center bg-background pt-16 font-sans text-foreground transition-[opacity,visibility] duration-300 lg:hidden',
+          'fixed inset-0 z-40 flex flex-col justify-center bg-background pt-[var(--header-h)] font-sans text-foreground transition-[opacity,visibility] duration-300 lg:hidden',
           pad,
           open ? 'visible opacity-100' : 'invisible opacity-0'
         )}
